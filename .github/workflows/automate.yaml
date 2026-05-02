@@ -59,12 +59,12 @@ jobs:
       # =========================
       # DEPLOY TO GKE
       # =========================
-      # - name: Get GKE credentials
-      #   run: |
-      #     gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${CLUSTER_REGION}
+      - name: Get GKE credentials
+        run: |
+          gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${CLUSTER_REGION}
 
-      # - name: Deploy Manifests
-      #   run: |
-      #     kubectl apply -f manifests/back-deployment.yaml
-      #     kubectl apply -f manifests/front-deployment.yaml
+      - name: Deploy Manifests
+        run: |
+          kubectl apply -f manifests/back-deployment.yaml
+          kubectl apply -f manifests/front-deployment.yaml
           
