@@ -1,0 +1,75 @@
+gcloud version
+gcloud init
+
+gcloud config list
+gcloud auth list
+
+after creating cluster...//
+gcloud container clusters list
+
+.....
+gcloud container clusters get-credentials <demo-cluster> --region <asia-south1>
+(plugin install)
+gcloud container clusters get-credentials <demo-cluster> --region <asia-south1>
+.....
+
+kubectl config get-contexts
+kubectl config current-context
+
+kubectl config use-context <kind-kind-3node>
+kubectl config delete-context <gke_duvindu-495014_europe-west4_demo-cluster>
+
+----------------------------------------------------------------------------------------------
+
+
+//DOCKER HUB PART...//
+docker tag simply:latest <your-dockerhub-username>/<repo1:v1.0>
+docker push <your-dockerhub-username>/<repo1:v1.0>
+pull it
+docker run -p 8000:8000 duvindune/repo1:v1.0
+
+
+
+//GAR PART...//
+gcloud auth login
+gcloud config set project YOUR_PROJECT_ID
+gcloud auth configure-docker REGION-docker.pkg.dev
+
+
+europe-west4-docker.pkg.dev/duvindu-495014/test-repo
+docker tag simply:latest europe-west4-docker.pkg.dev/duvindu-495014/test-repo/simply:latest
+docker push europe-west4-docker.pkg.dev/duvindu-495014/test-repo/simply:latest
+
+----------------------------------------------------------------------------------------------
+
+//Local Check//
+kubectl apply -f secrets.yaml
+kubectl apply -f headless-svc.yaml
+kubectl apply -f statefulset.yaml
+>>> kubectl get statefulset
+
+kubectl apply -f back-deployment.yaml
+>>> kubectl get pods
+>>> kubectl exec -it <any_pod> -- python manage.py migrate
+kubectl apply -f back-svc.yaml
+kubectl apply -f back-hpa.yaml
+
+kubectl apply -f front-deployment.yaml
+>>> kubectl get pods
+kubectl apply -f front-svc.yaml
+kubectl apply -f front-hpa.yaml
+
+>>> kubectl port-forward service/react-svc 80:80
+>>> http://localhost:80
+
+
+//GKE Apply//
+>> back-deployment edit
+>> fornt-svc edit
+
+.. STATIC IP (Global) Reserve from Google
+.. Cloudflare A Records Configuration
+
+>> cert, ingress
+
+.. Cloudflare Full(Strick Mode) Enable
