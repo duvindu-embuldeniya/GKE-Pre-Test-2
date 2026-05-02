@@ -74,36 +74,39 @@
 
 name: Build + Push + Deploy Fullstack to GKE
 
+# # on:
+# #   workflow_dispatch:
+
 on:
   push:
     branches:
       - main
-  
-# on:
-#   workflow_dispatch:    
 
+# =========================
+# GLOBAL ENV (FIXED)
+# =========================
+env:
+  GCP_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
+  GCP_REGION: ${{ secrets.GCP_REGION }}
+  REPO_PREFIX: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT }}
+  IMAGE_TAG: ${{ github.run_number }}
+  CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
+  CLUSTER_REGION: ${{ secrets.GKE_REGION }}
 
 jobs:
 
   # =========================
-  # IF: NORMAL BUILD FLOW
+  # NORMAL DEPLOY FLOW
   # =========================
   deploy:
     if: ${{ !contains(github.event.head_commit.message, 'rollback') }}
     runs-on: ubuntu-latest
 
-    env:
-      GCP_PROJECT: ${{ secrets.GOOGLE_PROJECT }}
-      GCP_REGION: ${{ secrets.GCP_REGION }} 
-      REPO_PREFIX: ${{ secrets.GCP_REGION }}-docker.pkg.dev/${{ secrets.GOOGLE_PROJECT }}
-      IMAGE_TAG: ${{ github.run_number }}
-      CLUSTER_NAME: ${{ secrets.GKE_CLUSTER_NAME }}
-      CLUSTER_REGION: ${{ secrets.GKE_REGION }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # AUTH
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -117,19 +120,19 @@ jobs:
       - name: Configure Docker
         run: gcloud auth configure-docker ${GCP_REGION}-docker.pkg.dev
 
-      # Backend build & push
+      # BACKEND
       - name: Build and Push Backend
         run: |
           docker build -t ${REPO_PREFIX}/backend/backend:${IMAGE_TAG} ./backend
           docker push ${REPO_PREFIX}/backend/backend:${IMAGE_TAG}
 
-      # Frontend build & push
+      # FRONTEND
       - name: Build and Push Frontend
         run: |
           docker build -t ${REPO_PREFIX}/frontend/frontend:${IMAGE_TAG} ./frontend
           docker push ${REPO_PREFIX}/frontend/frontend:${IMAGE_TAG}
 
-      # Deploy
+      # DEPLOY
       - name: Get GKE credentials
         run: |
           gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${CLUSTER_REGION}
@@ -141,7 +144,7 @@ jobs:
 
 
   # =========================
-  # ELSE: ROLLBACK FLOW
+  # ROLLBACK FLOW
   # =========================
   rollback:
     if: ${{ contains(github.event.head_commit.message, 'rollback') }}
@@ -151,9 +154,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # =========================
-      # AUTHENTICATION
-      # =========================
+      # AUTH
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
@@ -164,14 +165,13 @@ jobs:
         with:
           install_components: "gke-gcloud-auth-plugin"
 
-      # =========================
-      # ROLLBACK DEPLOY
-      # =========================
+      # CONNECT TO CLUSTER
       - name: Get GKE credentials
         run: |
           gcloud container clusters get-credentials ${CLUSTER_NAME} --region ${CLUSTER_REGION}
 
-      - name: Deploy Previous Stable Manifests (Rollback)
+      # ROLLBACK DEPLOY
+      - name: Rollback Deployment
         run: |
           echo "⚠️ Rollback triggered from commit message"
           kubectl apply -f manifests/back-deployment.yaml
