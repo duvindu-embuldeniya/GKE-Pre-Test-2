@@ -4,22 +4,37 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 
-from django.db import connection
 from django.http import HttpResponse
+from django.db import connections
 from django.db.utils import OperationalError
 
 
+
 def health(request):
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT 1")
-            cursor.fetchone()
-    except OperationalError:
-        return HttpResponse("db down", status=503)
+    for db_name in connections:
+        try:
+            connections[db_name].cursor()
+        except OperationalError:
+            return HttpResponse("status: db down", status=503)
 
-    return HttpResponse("ok", status=200)
+    return HttpResponse("status: ok", status=200)
+
+def startup(request):
+    return HttpResponse("started", status=200)
 
 
+def readiness(request):
+    for db_name in connections:
+        try:
+            connections[db_name].cursor()
+        except OperationalError:
+            return HttpResponse("db down", status=503)
+
+    return HttpResponse("ready", status=200)
+
+
+def liveness(request):
+    return HttpResponse("alive", status=200)
 
 
 @api_view(['POST'])
