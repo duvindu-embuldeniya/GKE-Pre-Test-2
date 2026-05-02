@@ -1,4 +1,4 @@
-![Project Banner](https://drive.google.com/uc?export=view&id=1OOfeSkKTglQ9X-bNRz9zo31xELsID-F7))
+![Project Banner](https://drive.google.com/uc?export=view&id=1OOfeSkKTglQ9X-bNRz9zo31xELsID-F7)
 
 # Project Setup
 
