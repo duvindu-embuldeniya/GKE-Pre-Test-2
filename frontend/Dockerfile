@@ -8,7 +8,6 @@ RUN npm install
 
 COPY . .
 
-# ENV VITE_SERVER_BASE_URL=http://django-svc:8000/api/v1
 # ENV VITE_SERVER_BASE_URL=/api/v1
 ENV VITE_SERVER_BASE_URL=http://localhost:8000/api/v1
 
@@ -25,7 +24,3 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
-
-
-# docker build -t frontend:react .
-# docker run -p 5173:80 frontend:react

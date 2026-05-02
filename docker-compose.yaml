@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: ${DB_PASS}
       POSTGRES_DB: ${DB_NAME}
     volumes:
-      - dev-db-data:/var/lib/postgresql/data
+      - project4_postgres_data:/var/lib/postgresql/data  
     ports:
       - 5432:5432
     healthcheck:
@@ -71,4 +71,4 @@ services:
   #     - frontend
 
 volumes:
-  dev-db-data:
+  project4_postgres_data:
